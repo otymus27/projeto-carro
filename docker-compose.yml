@@ -2,8 +2,6 @@ version: "3.8"
 
 services:
     mysql:
-        
-
         image: mysql:8.0
         container_name: mysql_carro
         restart: always
@@ -11,11 +9,11 @@ services:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: db_carro
         ports:
-            - "3305:3306"
+            - "3306:3306"
         volumes:
-            - mysql-data:/var/lib/mysql
+            - mysql-data-carro:/var/lib/mysql
         networks:
-            - carro-net
+            - otymus-net
         healthcheck:
             test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot"]
             interval: 10s
@@ -36,9 +34,9 @@ services:
             mysql:
                 condition: service_healthy
         ports:
-            - "8082:8080"
+            - "8082:8080" # ✅ Nova porta para o backend
         networks:
-            - carro-net
+            - otymus-net
 
     nginx:
         build:
@@ -46,16 +44,17 @@ services:
             dockerfile: Dockerfile
         container_name: nginx_carro
         ports:
-            - "85:80"
+            - "86:80" # ✅ Caminho para a pasta do segundo frontend
         volumes:
-        - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
         depends_on:
             - backend
         networks:
-            - carro-net
-            
+            - otymus-net
+
 volumes:
     mysql-data:
+    mysql-data-carro: # ✅ Novo volume para o segundo banco de dados
 
 networks:
-    carro-net: {}
+    otymus-net: {}
